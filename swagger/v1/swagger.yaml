@@ -1,0 +1,621 @@
+---
+openapi: 3.0.1
+info:
+  title: Todo List API
+  version: v1
+  description: API for managing tasks and user authentication
+paths:
+  "/signup":
+    post:
+      summary: Cria um usuário e retorna tokens
+      tags:
+      - Auth
+      parameters: []
+      responses:
+        '201':
+          description: criado
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - access_token
+                - refresh_token
+                properties:
+                  access_token:
+                    type: string
+                  refresh_token:
+                    type: string
+        '422':
+          description: erro de validação
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - errors
+                properties:
+                  errors:
+                    type: object
+                    additionalProperties:
+                      type: array
+                      items:
+                        type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - username
+              - password
+              properties:
+                username:
+                  type: string
+                  example: nando
+                password:
+                  type: string
+                  example: '123456'
+  "/login":
+    post:
+      summary: Login e retorna tokens
+      tags:
+      - Auth
+      parameters: []
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - access_token
+                - refresh_token
+                properties:
+                  access_token:
+                    type: string
+                  refresh_token:
+                    type: string
+        '401':
+          description: credenciais inválidas
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                properties:
+                  error:
+                    type: string
+                    example: Invalid username or password
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - username
+              - password
+              properties:
+                username:
+                  type: string
+                  example: nando
+                password:
+                  type: string
+                  example: '123456'
+  "/refresh":
+    post:
+      summary: Gera um novo access token a partir do refresh token
+      tags:
+      - Auth
+      parameters: []
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - access_token
+                properties:
+                  access_token:
+                    type: string
+        '401':
+          description: refresh token inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                properties:
+                  error:
+                    type: string
+                    example: Invalid refresh token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - refresh_token
+              properties:
+                refresh_token:
+                  type: string
+                  example: REFRESH_TOKEN_AQUI
+  "/tasks":
+    post:
+      summary: Cria uma nova task
+      tags:
+      - Tasks
+      security:
+      - Bearer: []
+      parameters: []
+      responses:
+        '201':
+          description: criado
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - id
+                - title
+                - description
+                - due_date
+                - priority
+                - completed
+                - user_id
+                - created_at
+                - updated_at
+                properties:
+                  id:
+                    type: integer
+                  title:
+                    type: string
+                  description:
+                    type: string
+                    nullable: true
+                  due_date:
+                    type: string
+                    format: date
+                  priority:
+                    type: integer
+                  completed:
+                    type: boolean
+                  user_id:
+                    type: integer
+                  created_at:
+                    type: string
+                    format: date-time
+                  updated_at:
+                    type: string
+                    format: date-time
+        '422':
+          description: erro de validação
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - errors
+                properties:
+                  errors:
+                    type: object
+                    additionalProperties:
+                      type: array
+                      items:
+                        type: string
+        '401':
+          description: não autorizado
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                properties:
+                  error:
+                    type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - title
+              - due_date
+              - priority
+              properties:
+                title:
+                  type: string
+                  example: Comprar pão
+                description:
+                  type: string
+                  example: Ir à padaria e comprar pão francês
+                due_date:
+                  type: string
+                  format: date
+                  example: '2026-02-10'
+                priority:
+                  type: integer
+                  example: 3
+                  minimum: 1
+                  maximum: 5
+    get:
+      summary: Lista todas as tasks do usuário autenticado
+      tags:
+      - Tasks
+      security:
+      - Bearer: []
+      parameters:
+      - name: page
+        in: query
+        required: false
+        description: Número da página
+        example: 1
+        schema:
+          type: integer
+      - name: limit
+        in: query
+        required: false
+        description: Quantidade de itens por página
+        example: 20
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                - pagination
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                      - id
+                      - title
+                      - description
+                      - due_date
+                      - priority
+                      - completed
+                      - user_id
+                      - created_at
+                      - updated_at
+                      properties:
+                        id:
+                          type: integer
+                        title:
+                          type: string
+                        description:
+                          type: string
+                          nullable: true
+                        due_date:
+                          type: string
+                          format: date
+                        priority:
+                          type: integer
+                        completed:
+                          type: boolean
+                        user_id:
+                          type: integer
+                        created_at:
+                          type: string
+                          format: date-time
+                        updated_at:
+                          type: string
+                          format: date-time
+                  pagination:
+                    type: object
+                    required:
+                    - current_page
+                    - per_page
+                    - total_pages
+                    - total_count
+                    properties:
+                      current_page:
+                        type: integer
+                      per_page:
+                        type: integer
+                      total_pages:
+                        type: integer
+                      total_count:
+                        type: integer
+        '401':
+          description: não autorizado
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                properties:
+                  error:
+                    type: string
+  "/tasks/{id}":
+    parameters:
+    - name: id
+      in: path
+      description: ID da task
+      required: true
+      schema:
+        type: integer
+    get:
+      summary: Retorna uma task específica
+      tags:
+      - Tasks
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - id
+                - title
+                - description
+                - due_date
+                - priority
+                - completed
+                - user_id
+                - created_at
+                - updated_at
+                properties:
+                  id:
+                    type: integer
+                  title:
+                    type: string
+                  description:
+                    type: string
+                    nullable: true
+                  due_date:
+                    type: string
+                    format: date
+                  priority:
+                    type: integer
+                  completed:
+                    type: boolean
+                  user_id:
+                    type: integer
+                  created_at:
+                    type: string
+                    format: date-time
+                  updated_at:
+                    type: string
+                    format: date-time
+        '404':
+          description: task não encontrada
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                properties:
+                  error:
+                    type: string
+                    example: Task not found
+        '401':
+          description: não autorizado
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                properties:
+                  error:
+                    type: string
+    put:
+      summary: Atualiza uma task
+      tags:
+      - Tasks
+      security:
+      - Bearer: []
+      parameters: []
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - id
+                - title
+                - description
+                - due_date
+                - priority
+                - completed
+                - user_id
+                - created_at
+                - updated_at
+                properties:
+                  id:
+                    type: integer
+                  title:
+                    type: string
+                  description:
+                    type: string
+                    nullable: true
+                  due_date:
+                    type: string
+                    format: date
+                  priority:
+                    type: integer
+                  completed:
+                    type: boolean
+                  user_id:
+                    type: integer
+                  created_at:
+                    type: string
+                    format: date-time
+                  updated_at:
+                    type: string
+                    format: date-time
+        '404':
+          description: task não encontrada
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                properties:
+                  error:
+                    type: string
+                    example: Task not found
+        '422':
+          description: erro de validação
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - errors
+                properties:
+                  errors:
+                    type: object
+                    additionalProperties:
+                      type: array
+                      items:
+                        type: string
+        '401':
+          description: não autorizado
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                properties:
+                  error:
+                    type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: Título atualizado
+                description:
+                  type: string
+                  example: Descrição atualizada
+                due_date:
+                  type: string
+                  format: date
+                  example: '2026-02-15'
+                priority:
+                  type: integer
+                  example: 5
+                  minimum: 1
+                  maximum: 5
+                completed:
+                  type: boolean
+                  example: true
+    delete:
+      summary: Remove uma task
+      tags:
+      - Tasks
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - message
+                properties:
+                  message:
+                    type: string
+                    example: Task deleted successfully
+        '404':
+          description: task não encontrada
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                properties:
+                  error:
+                    type: string
+                    example: Task not found
+        '401':
+          description: não autorizado
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                properties:
+                  error:
+                    type: string
+  "/me":
+    get:
+      summary: Retorna o usuário autenticado
+      tags:
+      - Users
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - id
+                - username
+                - created_at
+                - updated_at
+                properties:
+                  id:
+                    type: integer
+                  username:
+                    type: string
+                  created_at:
+                    type: string
+                    format: date-time
+                  updated_at:
+                    type: string
+                    format: date-time
+        '401':
+          description: não autorizado
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                properties:
+                  error:
+                    type: string
+servers:
+- url: http://localhost:3000
+  description: Development server
+components:
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token for authentication
