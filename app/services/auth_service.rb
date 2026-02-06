@@ -6,20 +6,18 @@ class AuthService
 
   def signup(username, password)
     hashed_password = BCrypt::Password.create(password)
+    user = @user_model.new(username: username, password_digest: hashed_password)
 
-    if @user_model.exists?(username: username)
-      return nil
+    if user.save
+      {
+        access_token: @jwt.generate_access_token(user.id),
+        refresh_token: @jwt.generate_refresh_token(user.id)
+      }
+    else
+      {
+        errors: user.errors.to_hash(true)
+      }
     end
-
-    user = @user_model.create(username: username, password_digest: hashed_password)
-
-    access_token = @jwt.generate_access_token(user.id)
-    refresh_token = @jwt.generate_refresh_token(user.id)
-
-    {
-      access_token: access_token,
-      refresh_token: refresh_token
-    }
   end
 
   def login(username, password)

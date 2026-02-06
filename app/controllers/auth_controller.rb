@@ -7,12 +7,11 @@ class AuthController < ApplicationController
       signup_params[:password]
     )
     
-    if tokens
-      render json: tokens, status: :ok
+    if tokens[:errors].present?
+      render json: { errors: tokens[:errors] }, status: :unprocessable_entity
     else
-      render json: { error: 'Username already taken' }, status: :conflict
+      render json: tokens, status: :created
     end
-    
   end
 
   def login
