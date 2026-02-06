@@ -2,12 +2,17 @@ class AuthController < ApplicationController
   def signup
     auth_service = AuthService.new(User)
     
-    user = auth_service.signup(
+    tokens = auth_service.signup(
       signup_params[:username],
       signup_params[:password]
     )
     
-    render json: { id: user.id, username: user.username }, status: :created
+    if tokens
+      render json: tokens, status: :ok
+    else
+      render json: { error: 'Username already taken' }, status: :conflict
+    end
+    
   end
 
   def login

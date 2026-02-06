@@ -6,6 +6,11 @@ class AuthService
 
   def signup(username, password)
     hashed_password = BCrypt::Password.create(password)
+
+    if @user_model.exists?(username: username)
+      return nil
+    end
+
     user = @user_model.create(username: username, password_digest: hashed_password)
 
     access_token = @jwt.generate_access_token(user.id)
