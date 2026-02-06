@@ -13,4 +13,10 @@ Rails.application.routes.draw do
   post "refresh", controller: "auth", action: "refresh"
 
   get "me", controller: "users", action: "me"
+
+  post "tasks", controller: "tasks", action: "create"
+  get "tasks/:id", controller: "tasks", action: "show"
+  get "tasks", controller: "tasks", action: "index"
+  put "tasks/:id", controller: "tasks", action: "update"
+  delete "tasks/:id", controller: "tasks", action: "delete"
 end

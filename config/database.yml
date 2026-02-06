@@ -2,19 +2,19 @@ default: &default
   adapter: postgresql
   encoding: unicode
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  username: <%= ENV.fetch("POSTGRES_USER") %>
-  password: <%= ENV.fetch("POSTGRES_PASSWORD") %>
-  host: <%= ENV.fetch("POSTGRES_HOST") %>
-  port: <%= ENV.fetch("POSTGRES_PORT") %>
+  username: <%= ENV.fetch("POSTGRES_USER") { "CHANGE-ME" } %>
+  password: <%= ENV.fetch("POSTGRES_PASSWORD") { "CHANGE-ME" } %>
+  host: <%= ENV.fetch("POSTGRES_HOST") { "CHANGE-ME" } %>
+  port: <%= ENV.fetch("POSTGRES_PORT") { "CHANGE-ME" } %>
 
 development:
   <<: *default
-  database: <%= ENV.fetch("POSTGRES_DB") %>
+  database: <%= ENV.fetch("POSTGRES_DB") { "CHANGE-ME" } %>
 
 test:
   <<: *default
-  database: <%= ENV.fetch("POSTGRES_TEST_DB") %>
+  database: <%= ENV.fetch("POSTGRES_TEST_DB") { "CHANGE-ME" } %>
 
 production:
   <<: *default
-  database: <%= ENV.fetch("POSTGRES_DB") %>
+  database: <%= ENV.fetch("POSTGRES_DB") { "CHANGE-ME" } %>
