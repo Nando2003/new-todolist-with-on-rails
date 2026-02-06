@@ -40,5 +40,9 @@ module NewTodolistWithRuby
     # Middleware like session, flash, cookies can be added back manually.
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
+
+    # JWT Authentication Middleware
+    require "#{Rails.root}/app/middleware/auth_middleware"
+    config.middleware.use AuthMiddleware
   end
 end
